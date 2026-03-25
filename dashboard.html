@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pomodoro Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0a0a0a;
+    color: #e0e0e0;
+    min-height: 100vh;
+  }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+  }
+  .header h1 { font-size: 28px; font-weight: 700; color: #fff; }
+  .date { color: #888; font-size: 14px; }
+
+  /* Editable field */
+  .editable {
+    cursor: pointer;
+    border-bottom: 1px dashed transparent;
+    transition: border-color 0.2s;
+  }
+  .editable:hover { border-bottom-color: #555; }
+  .edit-input {
+    background: #0a0a0a;
+    border: 1px solid #818cf8;
+    border-radius: 6px;
+    padding: 4px 8px;
+    color: #fff;
+    font-size: inherit;
+    font-family: inherit;
+    outline: none;
+    width: 100%;
+  }
+
+  /* Priority banner */
+  .priority-banner {
+    background: #1a1a2e;
+    border: 1px solid #2a2a4e;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .priority-banner .label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #818cf8;
+    white-space: nowrap;
+  }
+  .priority-banner .text {
+    font-size: 16px;
+    font-weight: 500;
+    color: #fff;
+    flex: 1;
+  }
+
+  /* Timer */
+  .timer-section {
+    background: #141414;
+    border: 1px solid #222;
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .timer-display {
+    font-size: 96px;
+    font-weight: 200;
+    font-variant-numeric: tabular-nums;
+    color: #fff;
+    letter-spacing: 4px;
+    margin: 16px 0;
+  }
+  .timer-display.warning { color: #f59e0b; }
+  .timer-label {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #666;
+    margin-bottom: 8px;
+  }
+  .session-badge {
+    display: inline-block;
+    background: #1a1a2e;
+    color: #818cf8;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+  .checkin-badge {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    background: #1a2a1a;
+    color: #4ade80;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .timer-buttons { display: flex; gap: 12px; justify-content: center; margin-top: 24px; }
+  .btn {
+    padding: 12px 32px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary { background: #818cf8; color: #fff; }
+  .btn-primary:hover { background: #6366f1; }
+  .btn-secondary { background: #222; color: #aaa; }
+  .btn-secondary:hover { background: #333; color: #fff; }
+  .btn-danger { background: #2a1515; color: #f87171; }
+  .btn-danger:hover { background: #3a1515; }
+  .btn-sm { padding: 6px 14px; font-size: 13px; }
+
+  /* Stats */
+  .stats-row { display: flex; gap: 24px; margin-bottom: 24px; }
+  @media (max-width: 768px) { .stats-row { flex-wrap: wrap; } .stats-row .stat { min-width: calc(50% - 12px); } }
+  .stat {
+    background: #141414;
+    border: 1px solid #222;
+    border-radius: 12px;
+    padding: 16px 20px;
+    flex: 1;
+    text-align: center;
+  }
+  .stat-value { font-size: 28px; font-weight: 700; color: #fff; }
+  .stat-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+  /* Grid */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+  @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+
+  /* Cards */
+  .card {
+    background: #141414;
+    border: 1px solid #222;
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .card h3 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #888;
+  }
+
+  /* Checklist */
+  .checklist { list-style: none; }
+  .checklist li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #1a1a1a;
+    font-size: 14px;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li.done { color: #666; text-decoration: line-through; }
+  .checklist li .check {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #444;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .checklist li.done .check {
+    background: #4ade80;
+    border-color: #4ade80;
+    color: #000;
+  }
+  .checklist li .task-text { flex: 1; }
+  .checklist li .delete-btn {
+    opacity: 0;
+    color: #f87171;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0 4px;
+    transition: opacity 0.2s;
+  }
+  .checklist li:hover .delete-btn { opacity: 0.6; }
+  .checklist li .delete-btn:hover { opacity: 1; }
+
+  /* Add task input */
+  .add-task-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #1a1a1a;
+  }
+  .add-task-input {
+    flex: 1;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+  }
+  .add-task-input:focus { border-color: #818cf8; }
+  .add-task-input::placeholder { color: #555; }
+
+  /* Check-in log */
+  .checkin-log { max-height: 400px; overflow-y: auto; }
+  .checkin-entry {
+    padding: 10px 0;
+    border-bottom: 1px solid #1a1a1a;
+    font-size: 13px;
+  }
+  .checkin-entry:last-child { border-bottom: none; }
+  .checkin-time {
+    color: #818cf8;
+    font-weight: 600;
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+  .checkin-text { color: #ccc; line-height: 1.5; }
+
+  /* Key numbers */
+  .key-numbers {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+  }
+  .key-num {
+    background: #0a0a0a;
+    border-radius: 6px;
+    padding: 8px 12px;
+    text-align: center;
+    position: relative;
+  }
+  .key-num .val { font-size: 16px; font-weight: 600; color: #818cf8; }
+  .key-num .lbl { font-size: 11px; color: #666; margin-top: 2px; }
+  .key-num .delete-kn {
+    position: absolute;
+    top: 2px;
+    right: 6px;
+    opacity: 0;
+    color: #f87171;
+    cursor: pointer;
+    font-size: 14px;
+    transition: opacity 0.2s;
+  }
+  .key-num:hover .delete-kn { opacity: 0.6; }
+  .key-num .delete-kn:hover { opacity: 1; }
+  .add-kn-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .add-kn-input {
+    flex: 1;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: #fff;
+    font-size: 13px;
+    outline: none;
+  }
+  .add-kn-input:focus { border-color: #818cf8; }
+  .add-kn-input::placeholder { color: #555; }
+
+  /* Check-in Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+  .modal-overlay.show { opacity: 1; pointer-events: all; }
+  .modal {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 20px;
+    padding: 40px;
+    width: 520px;
+    max-width: 90vw;
+    transform: translateY(20px);
+    transition: transform 0.4s ease;
+  }
+  .modal-overlay.show .modal { transform: translateY(0); }
+  .modal h2 { font-size: 22px; color: #fff; margin-bottom: 8px; }
+  .modal p { color: #888; font-size: 14px; margin-bottom: 24px; }
+  .modal-input {
+    width: 100%;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: #fff;
+    font-size: 16px;
+    outline: none;
+    margin-bottom: 16px;
+    resize: none;
+    min-height: 80px;
+    font-family: inherit;
+  }
+  .modal-input:focus { border-color: #818cf8; }
+  .modal-input::placeholder { color: #555; }
+  .modal-buttons { display: flex; gap: 12px; justify-content: flex-end; }
+
+  /* History tab bar */
+  .tab-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .tab {
+    padding: 8px 20px;
+    border-radius: 8px;
+    background: #141414;
+    border: 1px solid #222;
+    color: #888;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+  .tab.active { background: #1a1a2e; border-color: #818cf8; color: #818cf8; }
+  .tab:hover { color: #fff; }
+
+  /* History view */
+  .history-view { display: none; }
+  .history-view.active { display: block; }
+  .history-day {
+    background: #141414;
+    border: 1px solid #222;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .history-day h4 { color: #818cf8; margin-bottom: 12px; font-size: 15px; }
+  .history-day .history-checkin { padding: 6px 0; font-size: 13px; color: #aaa; border-bottom: 1px solid #1a1a1a; }
+  .history-day .history-checkin:last-child { border-bottom: none; }
+  .history-day .history-time { color: #818cf8; font-weight: 600; }
+  .history-day .history-tasks { margin-top: 8px; font-size: 13px; color: #666; }
+  .history-day .history-tasks span.done-task { color: #4ade80; text-decoration: line-through; }
+
+  /* Notification */
+  .notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #1a1a2e;
+    border: 1px solid #818cf8;
+    border-radius: 12px;
+    padding: 16px 24px;
+    font-size: 15px;
+    color: #fff;
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+    z-index: 100;
+    max-width: 360px;
+  }
+  .notification.show { transform: translateX(0); }
+
+  /* Sound toggle */
+  .sound-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #222;
+    border: none;
+    color: #888;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+  }
+
+  /* Pulse glow on check-in */
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(129,140,248,0); }
+    50% { box-shadow: 0 0 30px 10px rgba(129,140,248,0.15); }
+  }
+  .modal-overlay.show .modal { animation: pulse-glow 2s ease infinite; }
+
+  .empty-state { color: #555; font-size: 13px; padding: 20px; text-align: center; }
+
+  /* Notes / Workflow Log */
+  .notes-section { margin-bottom: 24px; }
+  .notes-input-area {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .notes-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .tag-pill {
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    color: #888;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tag-pill:hover { border-color: #666; color: #ccc; }
+  .tag-pill.active-workflow { background: #1a2a1a; border-color: #4ade80; color: #4ade80; }
+  .tag-pill.active-problem { background: #2a1a1a; border-color: #f87171; color: #f87171; }
+  .tag-pill.active-insight { background: #1a1a2e; border-color: #818cf8; color: #818cf8; }
+  .tag-pill.active-general { background: #2a2a1a; border-color: #fbbf24; color: #fbbf24; }
+  .notes-textarea {
+    width: 100%;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    resize: vertical;
+    min-height: 60px;
+  }
+  .notes-textarea:focus { border-color: #818cf8; }
+  .notes-textarea::placeholder { color: #555; }
+  .notes-submit-row { display: flex; justify-content: flex-end; }
+  .notes-list { max-height: 600px; overflow-y: auto; }
+  .note-entry {
+    padding: 14px 0;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  .note-entry:last-child { border-bottom: none; }
+  .note-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .note-time { color: #818cf8; font-weight: 600; font-size: 12px; }
+  .note-tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+  .note-tag-workflow { background: #1a2a1a; color: #4ade80; }
+  .note-tag-problem { background: #2a1a1a; color: #f87171; }
+  .note-tag-insight { background: #1a1a2e; color: #818cf8; }
+  .note-tag-general { background: #2a2a1a; color: #fbbf24; }
+  .note-delete {
+    margin-left: auto;
+    opacity: 0;
+    color: #f87171;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0 4px;
+    transition: opacity 0.2s;
+  }
+  .note-entry:hover .note-delete { opacity: 0.6; }
+  .note-delete:hover { opacity: 1 !important; }
+  .note-content {
+    color: #ccc;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* Quick Log inline input */
+  .quick-log-bar {
+    display: none;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: #0a0a0a;
+    border: 1px solid #818cf8;
+    border-radius: 10px;
+  }
+  .quick-log-bar.show { display: flex; }
+  .quick-log-bar input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 15px;
+    outline: none;
+    font-family: inherit;
+  }
+  .quick-log-bar input::placeholder { color: #555; }
+
+  /* Checkin log tag */
+  .log-tag {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-weight: 500;
+    margin-left: 6px;
+  }
+  .log-tag-checkin { background: #1a1a2e; color: #818cf8; }
+  .log-tag-quick { background: #2a2a1a; color: #fbbf24; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab('today')">Today</div>
+    <div class="tab" onclick="switchTab('history')">History</div>
+  </div>
+
+  <!-- ===== TODAY VIEW ===== -->
+  <div id="todayView">
+    <div class="header">
+      <div>
+        <h1>Pomodoro Dashboard</h1>
+        <div class="date" id="dateDisplay"></div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:13px;color:#666">Work Window</div>
+        <div style="font-size:18px;font-weight:600;color:#fff">
+          <span class="editable" id="workWindowStart" onclick="editField(this, 'workStart')">14:00</span>
+          —
+          <span class="editable" id="workWindowEnd" onclick="editField(this, 'workEnd')">19:00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Priority -->
+    <div class="priority-banner">
+      <div class="label">Daily Priority</div>
+      <div class="text editable" id="priorityText" onclick="editField(this, 'priority')">Click to set today's priority</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-value" id="checkinsCount">0</div>
+        <div class="stat-label">Check-ins</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="totalFocusTime">0m</div>
+        <div class="stat-label">Elapsed</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="tasksCompleted">0/0</div>
+        <div class="stat-label">Steps Done</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="timeRemaining">--</div>
+        <div class="stat-label">Time Left Today</div>
+      </div>
+    </div>
+
+    <!-- Timer -->
+    <div class="timer-section">
+      <div class="checkin-badge" id="checkinBadge">Next check-in: --:--</div>
+      <div class="timer-label" id="timerLabel">NEXT CHECK-IN</div>
+      <div class="timer-display" id="timerDisplay">15:00</div>
+      <div class="timer-buttons">
+        <button class="btn btn-primary" id="startBtn" onclick="toggleTimer()">Start</button>
+        <button class="btn btn-secondary" onclick="toggleQuickLog()">Quick Log</button>
+        <button class="btn btn-danger" onclick="resetTimer()">Reset</button>
+      </div>
+      <div class="quick-log-bar" id="quickLogBar">
+        <input type="text" id="quickLogInput" placeholder="記錄一下你要去做什麼..."
+          onkeydown="if(event.key==='Enter'){submitQuickLog()}" />
+        <button class="btn btn-primary btn-sm" onclick="submitQuickLog()">Log</button>
+        <button class="btn btn-secondary btn-sm" onclick="cancelQuickLog()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Grid: Tasks + Check-ins -->
+    <div class="grid">
+      <div class="card">
+        <div class="card-header">
+          <h3>Remaining Steps</h3>
+        </div>
+        <ul class="checklist" id="checklist"></ul>
+        <div class="add-task-row">
+          <input class="add-task-input" id="addTaskInput" placeholder="Add a new task..."
+            onkeydown="if(event.key==='Enter'){addTask()}">
+          <button class="btn btn-primary btn-sm" onclick="addTask()">+</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom:16px">Check-in Log</h3>
+        <div class="checkin-log" id="checkinLog">
+          <div class="empty-state">Press Start to begin the 15-minute cycle</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Numbers -->
+    <div class="card" style="margin-bottom:24px">
+      <div class="card-header">
+        <h3>Key Numbers</h3>
+      </div>
+      <div class="key-numbers" id="keyNumbers"></div>
+      <div class="add-kn-row">
+        <input class="add-kn-input" id="addKnLabel" placeholder="Label"
+          onkeydown="if(event.key==='Enter'){document.getElementById('addKnValue').focus()}">
+        <input class="add-kn-input" id="addKnValue" placeholder="Value"
+          style="max-width:120px"
+          onkeydown="if(event.key==='Enter'){addKeyNumber()}">
+        <button class="btn btn-primary btn-sm" onclick="addKeyNumber()">+</button>
+      </div>
+    </div>
+
+    <!-- Notes / Workflow Log -->
+    <div class="card notes-section">
+      <h3 style="margin-bottom:16px">Notes &amp; Workflow Log</h3>
+      <div class="notes-input-area">
+        <div class="notes-tags" id="noteTags">
+          <span class="tag-pill active-workflow" data-tag="workflow" onclick="selectNoteTag(this)">Workflow</span>
+          <span class="tag-pill" data-tag="problem" onclick="selectNoteTag(this)">Problem</span>
+          <span class="tag-pill" data-tag="insight" onclick="selectNoteTag(this)">Insight</span>
+          <span class="tag-pill" data-tag="general" onclick="selectNoteTag(this)">General</span>
+        </div>
+        <textarea class="notes-textarea" id="noteInput"
+          placeholder="Record a workflow step, problem, or insight..."
+          onkeydown="if(event.key==='Enter' && event.metaKey) { event.preventDefault(); addNote(); }"></textarea>
+        <div class="notes-submit-row">
+          <span style="font-size:11px;color:#555;margin-right:auto;align-self:center">Cmd+Enter to save</span>
+          <button class="btn btn-primary btn-sm" onclick="addNote()">Save Note</button>
+        </div>
+      </div>
+      <div class="notes-list" id="notesList">
+        <div class="empty-state">No notes yet. Record your workflow and insights here.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== HISTORY VIEW ===== -->
+  <div id="historyView" class="history-view">
+    <div class="header">
+      <div>
+        <h1>History</h1>
+        <div class="date">Past Pomodoro sessions</div>
+      </div>
+    </div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<!-- Check-in Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h2>Check-in Time</h2>
+    <p id="modalSubtitle">15 minutes passed. What are you working on?</p>
+    <textarea class="modal-input" id="modalInput"
+      placeholder="Describe what you're doing and your progress..."
+      onkeydown="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); submitCheckin(); }"></textarea>
+    <div class="modal-buttons">
+      <button class="btn btn-secondary" onclick="dismissCheckin()">Skip</button>
+      <button class="btn btn-primary" onclick="submitCheckin()">Record</button>
+    </div>
+  </div>
+</div>
+
+<!-- Notification -->
+<div class="notification" id="notification"></div>
+
+<!-- Sound toggle -->
+<button class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔔</button>
+
+<script>
+// ── Constants ──
+const CHECKIN_INTERVAL = 15 * 60;
+const STORAGE_KEY = 'pomodoro-data';
+
+// ── State ──
+let state = {
+  days: {}
+};
+let today = getTodayKey();
+let timeLeft = CHECKIN_INTERVAL;
+let isRunning = false;
+let interval = null;
+let soundEnabled = true;
+let modalOpen = false;
+let nagInterval = null;
+let nagCount = 0;
+
+function getTodayKey() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function getTodayState() {
+  if (!state.days[today]) {
+    state.days[today] = {
+      priority: '',
+      workStart: '09:00',
+      workEnd: '19:00',
+      tasks: [],
+      keyNumbers: [],
+      checkins: [],
+      notes: [],
+      startedAt: null,
+      timerLeft: CHECKIN_INTERVAL,
+      timerRunning: false
+    };
+  }
+  return state.days[today];
+}
+
+// ── Persistence ──
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      state = JSON.parse(raw);
+    }
+  } catch (e) {
+    console.warn('Failed to load state:', e);
+  }
+
+  const d = getTodayState();
+  timeLeft = d.timerLeft != null ? d.timerLeft : CHECKIN_INTERVAL;
+
+  // Ensure notes array exists for older data
+  if (!d.notes) d.notes = [];
+
+  // Restore UI
+  renderTasks();
+  renderKeyNumbers();
+  renderCheckinLog();
+  renderNotes();
+  document.getElementById('priorityText').textContent = d.priority || 'Click to set today\'s priority';
+  document.getElementById('workWindowStart').textContent = d.workStart || '09:00';
+  document.getElementById('workWindowEnd').textContent = d.workEnd || '19:00';
+
+  // Resume timer if it was running
+  if (d.timerRunning && d.startedAt) {
+    // Calculate how much time has passed since page was closed
+    const lastSave = d.lastSaveTime ? new Date(d.lastSaveTime).getTime() : Date.now();
+    const elapsed = Math.floor((Date.now() - lastSave) / 1000);
+    timeLeft = Math.max(0, timeLeft - elapsed);
+    if (timeLeft <= 0) {
+      timeLeft = 0;
+      updateTimerDisplay();
+      // Trigger check-in since time ran out while page was closed
+      setTimeout(() => triggerCheckin(), 500);
+    } else {
+      startTimer();
+    }
+  }
+
+  updateTimerDisplay();
+  updateStats();
+}
+
+function saveState() {
+  const d = getTodayState();
+  d.timerLeft = timeLeft;
+  d.timerRunning = isRunning;
+  d.lastSaveTime = new Date().toISOString();
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {
+    console.warn('Failed to save state:', e);
+  }
+}
+
+// ── Audio ──
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playGentleChime() {
+  if (!soundEnabled) return Promise.resolve();
+  return new Promise(resolve => {
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    [261.63, 329.63, 392.00].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine'; osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.06, now + 0.5);
+      gain.gain.setValueAtTime(0.06, now + 2.0);
+      gain.gain.linearRampToValueAtTime(0, now + 3.0);
+      osc.start(now + i * 0.15); osc.stop(now + 3.2);
+    });
+    [2.5, 2.8].forEach(t => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine'; osc.frequency.value = 523.25;
+      gain.gain.setValueAtTime(0.12, now + t);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.4);
+      osc.start(now + t); osc.stop(now + t + 0.5);
+    });
+    setTimeout(resolve, 3200);
+  });
+}
+
+function playDing() {
+  if (!soundEnabled) return;
+  const ctx = getAudioCtx();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.type = 'sine'; osc.frequency.value = 523.25;
+  gain.gain.setValueAtTime(0.08, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+  osc.start(); osc.stop(ctx.currentTime + 0.35);
+}
+
+function playReminderChime() {
+  if (!soundEnabled) return Promise.resolve();
+  return new Promise(resolve => {
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    [0, 0.3].forEach(t => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine'; osc.frequency.value = 523.25;
+      gain.gain.setValueAtTime(0.08, now + t);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.3);
+      osc.start(now + t); osc.stop(now + t + 0.4);
+    });
+    setTimeout(resolve, 800);
+  });
+}
+
+// ── TTS ──
+function speakChinese(text) {
+  if (!soundEnabled) return;
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'zh-TW'; utter.rate = 0.9; utter.volume = 0.6;
+  const voices = speechSynthesis.getVoices();
+  const zhVoice = voices.find(v => v.lang.startsWith('zh') && v.name.includes('Mei')) ||
+                  voices.find(v => v.lang.startsWith('zh-TW')) ||
+                  voices.find(v => v.lang.startsWith('zh'));
+  if (zhVoice) utter.voice = zhVoice;
+  speechSynthesis.speak(utter);
+}
+speechSynthesis.getVoices();
+speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+
+// ── Timer ──
+function toggleTimer() {
+  if (isRunning) pauseTimer(); else startTimer();
+}
+
+function startTimer() {
+  const d = getTodayState();
+  if (!d.startedAt) d.startedAt = new Date().toISOString();
+  isRunning = true;
+  document.getElementById('startBtn').textContent = 'Pause';
+  getAudioCtx();
+  playDing();
+  clearInterval(interval);
+  interval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    // Save every 10 seconds to survive sudden close
+    if (timeLeft % 10 === 0) saveState();
+    if (timeLeft <= 0) {
+      clearInterval(interval);
+      isRunning = false;
+      triggerCheckin();
+    }
+  }, 1000);
+  saveState();
+}
+
+function pauseTimer() {
+  isRunning = false;
+  clearInterval(interval);
+  document.getElementById('startBtn').textContent = 'Resume';
+  saveState();
+}
+
+function resetTimer() {
+  clearInterval(interval);
+  isRunning = false;
+  timeLeft = CHECKIN_INTERVAL;
+  updateTimerDisplay();
+  document.getElementById('startBtn').textContent = 'Start';
+  saveState();
+}
+
+function updateTimerDisplay() {
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+  const display = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  document.getElementById('timerDisplay').textContent = display;
+
+  const now = new Date();
+  const next = new Date(now.getTime() + timeLeft * 1000);
+  document.getElementById('checkinBadge').textContent =
+    `Next check-in: ${next.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}`;
+
+  const el = document.getElementById('timerDisplay');
+  if (timeLeft <= 120 && timeLeft > 0) el.classList.add('warning');
+  else el.classList.remove('warning');
+
+  document.title = isRunning ? `${display} — Pomodoro` : 'Pomodoro Dashboard';
+}
+
+// ── Quick Log (doesn't affect timer) ──
+function toggleQuickLog() {
+  const bar = document.getElementById('quickLogBar');
+  const input = document.getElementById('quickLogInput');
+  if (bar.classList.contains('show')) {
+    cancelQuickLog();
+  } else {
+    bar.classList.add('show');
+    input.value = '';
+    setTimeout(() => input.focus(), 50);
+  }
+}
+
+function cancelQuickLog() {
+  document.getElementById('quickLogBar').classList.remove('show');
+}
+
+function submitQuickLog() {
+  const input = document.getElementById('quickLogInput');
+  const text = input.value.trim();
+  if (!text) { input.focus(); return; }
+
+  const now = new Date();
+  const d = getTodayState();
+  d.checkins.push({
+    time: now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+    text,
+    timestamp: now.toISOString(),
+    type: 'quick'
+  });
+
+  document.getElementById('quickLogBar').classList.remove('show');
+  playDing();
+  renderCheckinLog();
+  updateStats();
+  saveState();
+}
+
+// ── Check-in ──
+function startNagging() {
+  stopNagging(); nagCount = 0;
+  nagInterval = setInterval(() => {
+    if (!document.getElementById('modalOverlay').classList.contains('show')) { stopNagging(); return; }
+    nagCount++;
+    playReminderChime().then(() => {
+      speakChinese(`Ryan，已經過了${nagCount}分鐘了，請記錄一下你在做什麼`);
+    });
+    document.title = '⚠️ 請回報進度！';
+    setTimeout(() => { document.title = 'Pomodoro Dashboard'; }, 3000);
+  }, 60 * 1000);
+}
+
+function stopNagging() {
+  if (nagInterval) { clearInterval(nagInterval); nagInterval = null; }
+  nagCount = 0;
+}
+
+async function triggerCheckin() {
+  if (modalOpen) return;
+  modalOpen = true;
+  clearInterval(interval);
+  isRunning = false;
+  await playGentleChime();
+  speakChinese('Ryan，15分鐘到了，現在在做什麼？');
+  showModal();
+  startNagging();
+}
+
+function showModal() {
+  const overlay = document.getElementById('modalOverlay');
+  const input = document.getElementById('modalInput');
+  overlay.classList.add('show');
+  input.value = '';
+  setTimeout(() => input.focus(), 100);
+  if (Notification.permission === 'granted') {
+    new Notification('Pomodoro Check-in', { body: '15 分鐘到了，現在在做什麼？', silent: true });
+  }
+}
+
+function dismissCheckin() {
+  stopNagging(); modalOpen = false;
+  document.getElementById('modalOverlay').classList.remove('show');
+  timeLeft = CHECKIN_INTERVAL;
+  startTimer();
+}
+
+function submitCheckin() {
+  const input = document.getElementById('modalInput');
+  const text = input.value.trim();
+  if (!text) { input.focus(); return; }
+  stopNagging(); modalOpen = false;
+
+  const now = new Date();
+  const d = getTodayState();
+  d.checkins.push({
+    time: now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+    text,
+    timestamp: now.toISOString()
+  });
+
+  document.getElementById('modalOverlay').classList.remove('show');
+  playDing();
+  renderCheckinLog();
+  updateStats();
+
+  timeLeft = CHECKIN_INTERVAL;
+  startTimer();
+}
+
+function renderCheckinLog() {
+  const d = getTodayState();
+  const container = document.getElementById('checkinLog');
+  if (d.checkins.length === 0) {
+    container.innerHTML = '<div class="empty-state">Press Start to begin the 15-minute cycle</div>';
+    return;
+  }
+  container.innerHTML = [...d.checkins].reverse().map(c => {
+    const isQuick = c.type === 'quick';
+    const tagHtml = isQuick
+      ? '<span class="log-tag log-tag-quick">quick</span>'
+      : '<span class="log-tag log-tag-checkin">check-in</span>';
+    return `
+    <div class="checkin-entry">
+      <div class="checkin-time">${escapeHtml(c.time)}${tagHtml}</div>
+      <div class="checkin-text">${escapeHtml(c.text)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Tasks ──
+function renderTasks() {
+  const d = getTodayState();
+  const list = document.getElementById('checklist');
+  if (d.tasks.length === 0) {
+    list.innerHTML = '<li style="color:#555;justify-content:center;border:none;cursor:default">No tasks yet. Add one below.</li>';
+    return;
+  }
+  list.innerHTML = d.tasks.map((t, i) => `
+    <li class="${t.done ? 'done' : ''}">
+      <div class="check" onclick="toggleTask(${i})">${t.done ? '✓' : ''}</div>
+      <span class="task-text">${escapeHtml(t.text)}</span>
+      <span class="delete-btn" onclick="deleteTask(${i})">×</span>
+    </li>
+  `).join('');
+}
+
+function addTask() {
+  const input = document.getElementById('addTaskInput');
+  const text = input.value.trim();
+  if (!text) return;
+  const d = getTodayState();
+  d.tasks.push({ text, done: false });
+  input.value = '';
+  renderTasks();
+  updateStats();
+  saveState();
+  playDing();
+}
+
+function toggleTask(index) {
+  const d = getTodayState();
+  if (d.tasks[index]) {
+    d.tasks[index].done = !d.tasks[index].done;
+    renderTasks();
+    updateStats();
+    saveState();
+    playDing();
+  }
+}
+
+function deleteTask(index) {
+  const d = getTodayState();
+  d.tasks.splice(index, 1);
+  renderTasks();
+  updateStats();
+  saveState();
+}
+
+// ── Key Numbers ──
+function renderKeyNumbers() {
+  const d = getTodayState();
+  const container = document.getElementById('keyNumbers');
+  if (d.keyNumbers.length === 0) {
+    container.innerHTML = '<div style="color:#555;font-size:12px;text-align:center;grid-column:1/-1">No key numbers yet</div>';
+    return;
+  }
+  container.innerHTML = d.keyNumbers.map((kn, i) => `
+    <div class="key-num">
+      <span class="delete-kn" onclick="deleteKeyNumber(${i})">×</span>
+      <div class="val">${escapeHtml(kn.value)}</div>
+      <div class="lbl">${escapeHtml(kn.label)}</div>
+    </div>
+  `).join('');
+}
+
+function addKeyNumber() {
+  const labelInput = document.getElementById('addKnLabel');
+  const valueInput = document.getElementById('addKnValue');
+  const label = labelInput.value.trim();
+  const value = valueInput.value.trim();
+  if (!label || !value) return;
+  const d = getTodayState();
+  d.keyNumbers.push({ label, value });
+  labelInput.value = '';
+  valueInput.value = '';
+  renderKeyNumbers();
+  saveState();
+  playDing();
+}
+
+function deleteKeyNumber(index) {
+  const d = getTodayState();
+  d.keyNumbers.splice(index, 1);
+  renderKeyNumbers();
+  saveState();
+}
+
+// ── Notes / Workflow Log ──
+let selectedNoteTag = 'workflow';
+
+function selectNoteTag(el) {
+  document.querySelectorAll('#noteTags .tag-pill').forEach(p => {
+    p.className = 'tag-pill';
+  });
+  selectedNoteTag = el.dataset.tag;
+  el.classList.add('active-' + selectedNoteTag);
+}
+
+function addNote() {
+  const input = document.getElementById('noteInput');
+  const text = input.value.trim();
+  if (!text) { input.focus(); return; }
+
+  const d = getTodayState();
+  if (!d.notes) d.notes = [];
+  const now = new Date();
+  d.notes.push({
+    time: now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+    timestamp: now.toISOString(),
+    tag: selectedNoteTag,
+    text
+  });
+
+  input.value = '';
+  renderNotes();
+  saveState();
+  playDing();
+}
+
+function deleteNote(index) {
+  const d = getTodayState();
+  if (!d.notes) return;
+  d.notes.splice(index, 1);
+  renderNotes();
+  saveState();
+}
+
+function renderNotes() {
+  const d = getTodayState();
+  const container = document.getElementById('notesList');
+  const notes = d.notes || [];
+  if (notes.length === 0) {
+    container.innerHTML = '<div class="empty-state">No notes yet. Record your workflow and insights here.</div>';
+    return;
+  }
+  container.innerHTML = [...notes].reverse().map((n, ri) => {
+    const i = notes.length - 1 - ri;
+    return `
+    <div class="note-entry">
+      <div class="note-header">
+        <span class="note-time">${escapeHtml(n.time)}</span>
+        <span class="note-tag note-tag-${escapeHtml(n.tag)}">${escapeHtml(n.tag)}</span>
+        <span class="note-delete" onclick="deleteNote(${i})">×</span>
+      </div>
+      <div class="note-content">${escapeHtml(n.text)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Editable fields ──
+function editField(el, field) {
+  if (el.querySelector('input')) return;
+  const currentVal = el.textContent;
+  const input = document.createElement('input');
+  input.className = 'edit-input';
+  input.value = currentVal === 'Click to set today\'s priority' ? '' : currentVal;
+  input.style.fontSize = getComputedStyle(el).fontSize;
+
+  el.textContent = '';
+  el.appendChild(input);
+  input.focus();
+  input.select();
+
+  const save = () => {
+    const val = input.value.trim();
+    const d = getTodayState();
+    if (field === 'priority') {
+      d.priority = val;
+      el.textContent = val || 'Click to set today\'s priority';
+    } else if (field === 'workStart') {
+      d.workStart = val || '09:00';
+      el.textContent = d.workStart;
+    } else if (field === 'workEnd') {
+      d.workEnd = val || '19:00';
+      el.textContent = d.workEnd;
+    }
+    saveState();
+  };
+
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+    if (e.key === 'Escape') { el.textContent = currentVal; }
+  });
+}
+
+// ── Stats ──
+function updateStats() {
+  const d = getTodayState();
+  document.getElementById('checkinsCount').textContent = d.checkins.length;
+
+  if (d.startedAt) {
+    const elapsed = Math.floor((Date.now() - new Date(d.startedAt).getTime()) / 1000);
+    const mins = Math.floor(elapsed / 60);
+    document.getElementById('totalFocusTime').textContent = mins >= 60
+      ? `${Math.floor(mins/60)}h${mins%60}m` : `${mins}m`;
+  }
+
+  const done = d.tasks.filter(t => t.done).length;
+  const total = d.tasks.length;
+  document.getElementById('tasksCompleted').textContent = `${done}/${total}`;
+
+  // Time remaining
+  const now = new Date();
+  const endParts = (d.workEnd || '19:00').split(':');
+  const end = new Date();
+  end.setHours(parseInt(endParts[0]), parseInt(endParts[1]), 0, 0);
+  const diff = Math.max(0, end - now);
+  const hrs = Math.floor(diff / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  document.getElementById('timeRemaining').textContent = hrs > 0 ? `${hrs}h${mins}m` : `${mins}m`;
+}
+
+// ── Tab switching ──
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (tab === 'today') {
+    document.querySelector('.tab:first-child').classList.add('active');
+    document.getElementById('todayView').style.display = '';
+    document.getElementById('historyView').classList.remove('active');
+  } else {
+    document.querySelector('.tab:last-child').classList.add('active');
+    document.getElementById('todayView').style.display = 'none';
+    document.getElementById('historyView').classList.add('active');
+    renderHistory();
+  }
+}
+
+function renderHistory() {
+  const container = document.getElementById('historyList');
+  const days = Object.keys(state.days).sort().reverse().filter(d => d !== today);
+  if (days.length === 0) {
+    container.innerHTML = '<div class="empty-state">No history yet. Complete a session to see it here.</div>';
+    return;
+  }
+  container.innerHTML = days.map(dayKey => {
+    const d = state.days[dayKey];
+    const date = new Date(dayKey + 'T00:00:00');
+    const dateStr = date.toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+
+    const checkinHtml = (d.checkins || []).map(c =>
+      `<div class="history-checkin"><span class="history-time">${escapeHtml(c.time)}</span> ${escapeHtml(c.text)}</div>`
+    ).join('');
+
+    const tasksHtml = (d.tasks || []).map(t =>
+      t.done ? `<span class="done-task">${escapeHtml(t.text)}</span>` : escapeHtml(t.text)
+    ).join(' / ');
+
+    const notesHtml = (d.notes || []).map(n =>
+      `<div class="history-checkin"><span class="history-time">${escapeHtml(n.time)}</span> <span class="note-tag note-tag-${escapeHtml(n.tag)}" style="font-size:10px;padding:1px 6px">${escapeHtml(n.tag)}</span> ${escapeHtml(n.text)}</div>`
+    ).join('');
+
+    return `
+      <div class="history-day">
+        <h4>${dateStr}${d.priority ? ' — ' + escapeHtml(d.priority) : ''}</h4>
+        ${checkinHtml || '<div style="color:#555;font-size:13px">No check-ins</div>'}
+        ${tasksHtml ? `<div class="history-tasks">Tasks: ${tasksHtml}</div>` : ''}
+        ${notesHtml ? `<div style="margin-top:12px;padding-top:12px;border-top:1px solid #1a1a1a"><div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Notes</div>${notesHtml}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+// ── Sound toggle ──
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  document.getElementById('soundToggle').textContent = soundEnabled ? '🔔' : '🔕';
+}
+
+// ── Notification ──
+function showNotification(text) {
+  const el = document.getElementById('notification');
+  el.textContent = text;
+  el.className = 'notification show';
+  setTimeout(() => el.classList.remove('show'), 5000);
+}
+
+// ── Utilities ──
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function updateDate() {
+  document.getElementById('dateDisplay').textContent = new Date().toLocaleDateString('zh-TW', {
+    year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+  });
+}
+
+// ── Request notification permission ──
+if ('Notification' in window && Notification.permission === 'default') {
+  Notification.requestPermission();
+}
+
+// ── Save before page unload ──
+window.addEventListener('beforeunload', () => saveState());
+
+// ── Periodic stats update ──
+setInterval(updateStats, 30000);
+
+// ── Init ──
+updateDate();
+loadState();
+updateStats();
+updateTimerDisplay();
+
+// Migrate data from old format if exists
+(function migrateOldData() {
+  const oldKey = 'pomodoro-' + today;
+  const old = localStorage.getItem(oldKey);
+  if (old && getTodayState().checkins.length === 0) {
+    try {
+      const oldData = JSON.parse(old);
+      const d = getTodayState();
+      if (oldData.checkins && oldData.checkins.length > 0) d.checkins = oldData.checkins;
+      if (oldData.startedAt) d.startedAt = oldData.startedAt;
+      if (oldData.checkedTasks) {
+        // Map old checked tasks to new format if tasks exist
+        const oldTasks = ['descript-export','import-fcp','split','export-fcp','subtitle','yt-prep','upload'];
+        const oldLabels = ['Descript 匯出完成','匯入主影片到 FCP，接上開頭','在 39:53 切點分成上下集','FCP 匯出上下集','字幕對齊驗證','YouTube 封面/標題/資訊欄','上傳 YouTube'];
+        if (d.tasks.length === 0) {
+          oldTasks.forEach((id, i) => {
+            d.tasks.push({ text: oldLabels[i], done: oldData.checkedTasks.includes(id) });
+          });
+        }
+      }
+      // Migrate key numbers
+      if (d.keyNumbers.length === 0) {
+        d.keyNumbers = [
+          { label: '上集開頭', value: '1:33.27' },
+          { label: '下集開頭', value: '1:15.28' },
+          { label: '切點', value: '39:53' },
+          { label: '上集字幕', value: '1374' },
+          { label: '下集字幕', value: '1528' },
+        ];
+      }
+      // Migrate priority & work window
+      if (!d.priority) d.priority = 'Podcast 葉維達訪談 — 剪輯完成上架到 YT';
+      d.workStart = '14:04';
+      d.workEnd = '19:00';
+
+      saveState();
+      renderTasks();
+      renderKeyNumbers();
+      renderCheckinLog();
+      updateStats();
+      document.getElementById('priorityText').textContent = d.priority;
+      document.getElementById('workWindowStart').textContent = d.workStart;
+      document.getElementById('workWindowEnd').textContent = d.workEnd;
+      // Clean up old key
+      localStorage.removeItem(oldKey);
+    } catch(e) { console.warn('Migration failed:', e); }
+  }
+})();
+</script>
+</body>
+</html>
