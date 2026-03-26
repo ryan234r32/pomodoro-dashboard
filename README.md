@@ -17,6 +17,9 @@ A single-file, zero-dependency Pomodoro timer and productivity dashboard that ru
 - **History** — Browse past days' check-ins, tasks, and notes.
 - **Browser notifications** — Get notified even when the tab is in the background.
 - **Nag reminders** — If you don't respond to a check-in, it reminds you every minute with audio + voice.
+- **Eisenhower Matrix** — Manage all tasks with an urgent/important quadrant system. Focus on what matters (Q2: Not Urgent + Important). Tasks persist across days.
+- **AI auto-categorization** — Optionally connect a Gemini API key. Each check-in is automatically analyzed and added to your Notes with the correct tag (workflow/problem/insight/general).
+- **Cross-day date labels** — Check-in logs and notes show dates when entries span multiple days, with visual separators at day boundaries.
 
 ## Quick Start
 

@@ -505,6 +505,155 @@
     word-break: break-word;
   }
 
+  /* Matrix */
+  .matrix-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 768px) { .matrix-grid { grid-template-columns: 1fr; } }
+  .matrix-quadrant {
+    background: #141414;
+    border: 1px solid #222;
+    border-radius: 12px;
+    padding: 20px;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+  }
+  .matrix-q1 { border-color: #2a1a1a; background: #141212; }
+  .matrix-q2 { border-color: #1a2a1e; background: #121a14; }
+  .matrix-q3 { border-color: #2a261a; background: #141412; }
+  .matrix-q4 { border-color: #222; background: #141414; opacity: 0.75; }
+  .matrix-focus {
+    border-width: 2px;
+    border-color: #4ade80;
+    box-shadow: 0 0 20px rgba(74,222,128,0.06), inset 0 0 20px rgba(74,222,128,0.02);
+    position: relative;
+  }
+  .matrix-focus-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: #1a2a1a;
+    color: #4ade80;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(74,222,128,0.3);
+  }
+  .matrix-quadrant-header { margin-bottom: 16px; position: relative; }
+  .matrix-quadrant-label {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .matrix-q1 .matrix-quadrant-label { color: #f87171; }
+  .matrix-q2 .matrix-quadrant-label { color: #4ade80; }
+  .matrix-q3 .matrix-quadrant-label { color: #fbbf24; }
+  .matrix-q4 .matrix-quadrant-label { color: #666; }
+  .matrix-quadrant-subtitle { font-size: 11px; color: #555; }
+  .matrix-dot {
+    width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0;
+  }
+  .matrix-dot-q1 { background: #f87171; }
+  .matrix-dot-q2 { background: #4ade80; }
+  .matrix-dot-q3 { background: #fbbf24; }
+  .matrix-dot-q4 { background: #555; }
+  .matrix-list { list-style: none; flex: 1; overflow-y: auto; max-height: 300px; }
+  .matrix-list li {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid #1a1a1a; font-size: 14px;
+  }
+  .matrix-list li:last-child { border-bottom: none; }
+  .matrix-list li.done { color: #555; text-decoration: line-through; }
+  .matrix-list li .check {
+    width: 18px; height: 18px; border: 2px solid #444; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; cursor: pointer; font-size: 12px; transition: all 0.2s;
+  }
+  .matrix-list li.done .check { background: #4ade80; border-color: #4ade80; color: #000; }
+  .matrix-list li .task-text { flex: 1; }
+  .matrix-list li .task-actions {
+    display: flex; gap: 4px; opacity: 0; transition: opacity 0.2s; flex-shrink: 0;
+  }
+  .matrix-list li:hover .task-actions { opacity: 0.7; }
+  .matrix-move-btn {
+    background: none; border: 1px solid #333; border-radius: 4px;
+    color: #888; cursor: pointer; font-size: 11px; padding: 2px 6px;
+  }
+  .matrix-move-btn:hover { border-color: #818cf8; color: #818cf8; }
+  .matrix-delete-btn {
+    color: #f87171; cursor: pointer; font-size: 16px; padding: 0 4px; background: none; border: none;
+  }
+  .matrix-move-menu {
+    position: absolute; right: 0; top: 100%; background: #1a1a1a;
+    border: 1px solid #333; border-radius: 8px; padding: 4px; z-index: 50;
+    min-width: 140px; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .matrix-move-menu-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; font-size: 13px; color: #ccc; cursor: pointer; border-radius: 6px;
+  }
+  .matrix-move-menu-item:hover { background: #222; color: #fff; }
+  .matrix-add-row {
+    display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #1a1a1a;
+  }
+  .matrix-add-input {
+    flex: 1; background: #0a0a0a; border: 1px solid #333; border-radius: 6px;
+    padding: 8px 12px; color: #fff; font-size: 14px; outline: none;
+  }
+  .matrix-add-input:focus { border-color: #818cf8; }
+  .matrix-add-input::placeholder { color: #555; }
+  .matrix-clear-done {
+    font-size: 11px; color: #555; cursor: pointer; margin-left: auto;
+  }
+  .matrix-clear-done:hover { color: #f87171; }
+  .matrix-stats { font-size: 14px; color: #888; }
+
+  /* Settings gear */
+  .settings-toggle {
+    position: fixed; bottom: 20px; left: 20px; background: #222; border: none;
+    color: #888; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 18px;
+  }
+  .settings-panel {
+    position: fixed; bottom: 70px; left: 20px; background: #1a1a1a; border: 1px solid #333;
+    border-radius: 12px; padding: 20px; width: 340px; z-index: 100;
+    transform: translateY(10px); opacity: 0; pointer-events: none; transition: all 0.2s;
+  }
+  .settings-panel.show { transform: translateY(0); opacity: 1; pointer-events: all; }
+  .settings-panel h4 { color: #fff; font-size: 14px; margin-bottom: 12px; }
+  .settings-panel label { font-size: 12px; color: #888; display: block; margin-bottom: 4px; }
+  .settings-input {
+    width: 100%; background: #0a0a0a; border: 1px solid #333; border-radius: 6px;
+    padding: 8px 10px; color: #fff; font-size: 13px; outline: none; font-family: monospace;
+  }
+  .settings-input:focus { border-color: #818cf8; }
+  .settings-status { font-size: 11px; margin-top: 6px; }
+  .settings-status.ok { color: #4ade80; }
+  .settings-status.none { color: #666; }
+
+  /* AI badge */
+  .ai-badge {
+    font-size: 9px; padding: 1px 5px; border-radius: 6px;
+    background: #1a2a1a; color: #4ade80; font-weight: 700; letter-spacing: 0.5px; margin-left: 4px;
+  }
+
+  /* Date separator */
+  .date-separator {
+    text-align: center; color: #555; font-size: 11px; padding: 12px 0 4px;
+    border-top: 1px solid #1a1a1a; margin-top: 4px;
+    letter-spacing: 1px; text-transform: uppercase;
+  }
+
   /* Quick Log inline input */
   .quick-log-bar {
     display: none;
@@ -544,8 +693,9 @@
 <div class="container">
   <!-- Tab bar -->
   <div class="tab-bar">
-    <div class="tab active" onclick="switchTab('today')">Today</div>
-    <div class="tab" onclick="switchTab('history')">History</div>
+    <div class="tab active" data-tab="today" onclick="switchTab('today')">Today</div>
+    <div class="tab" data-tab="matrix" onclick="switchTab('matrix')">Matrix</div>
+    <div class="tab" data-tab="history" onclick="switchTab('history')">History</div>
   </div>
 
   <!-- ===== TODAY VIEW ===== -->
@@ -671,6 +821,70 @@
     </div>
   </div>
 
+  <!-- ===== MATRIX VIEW ===== -->
+  <div id="matrixView" class="history-view">
+    <div class="header">
+      <div>
+        <h1>Eisenhower Matrix</h1>
+        <div class="date">Focus on what's important, not just what's urgent</div>
+      </div>
+      <div style="text-align:right">
+        <div class="matrix-stats">
+          <span id="matrixTotalTasks">0</span> tasks
+          <span style="margin:0 8px;color:#333">|</span>
+          <span id="matrixQ2Count" style="color:#4ade80;font-weight:600">0</span> in focus
+        </div>
+      </div>
+    </div>
+    <div class="matrix-grid">
+      <div class="matrix-quadrant matrix-q1">
+        <div class="matrix-quadrant-header">
+          <div class="matrix-quadrant-label"><span class="matrix-dot matrix-dot-q1"></span>DO FIRST</div>
+          <div class="matrix-quadrant-subtitle">Urgent + Important</div>
+        </div>
+        <ul class="matrix-list" id="matrixListQ1"></ul>
+        <div class="matrix-add-row">
+          <input class="matrix-add-input" id="matrixInputQ1" placeholder="Add task..." onkeydown="if(event.key==='Enter'){addMatrixTask('q1')}">
+          <button class="btn btn-primary btn-sm" onclick="addMatrixTask('q1')">+</button>
+        </div>
+      </div>
+      <div class="matrix-quadrant matrix-q2 matrix-focus">
+        <div class="matrix-focus-badge">FOCUS</div>
+        <div class="matrix-quadrant-header">
+          <div class="matrix-quadrant-label"><span class="matrix-dot matrix-dot-q2"></span>SCHEDULE</div>
+          <div class="matrix-quadrant-subtitle">Not Urgent + Important</div>
+        </div>
+        <ul class="matrix-list" id="matrixListQ2"></ul>
+        <div class="matrix-add-row">
+          <input class="matrix-add-input" id="matrixInputQ2" placeholder="Add task..." onkeydown="if(event.key==='Enter'){addMatrixTask('q2')}">
+          <button class="btn btn-primary btn-sm" onclick="addMatrixTask('q2')">+</button>
+        </div>
+      </div>
+      <div class="matrix-quadrant matrix-q3">
+        <div class="matrix-quadrant-header">
+          <div class="matrix-quadrant-label"><span class="matrix-dot matrix-dot-q3"></span>DELEGATE</div>
+          <div class="matrix-quadrant-subtitle">Urgent + Not Important</div>
+        </div>
+        <ul class="matrix-list" id="matrixListQ3"></ul>
+        <div class="matrix-add-row">
+          <input class="matrix-add-input" id="matrixInputQ3" placeholder="Add task..." onkeydown="if(event.key==='Enter'){addMatrixTask('q3')}">
+          <button class="btn btn-primary btn-sm" onclick="addMatrixTask('q3')">+</button>
+        </div>
+      </div>
+      <div class="matrix-quadrant matrix-q4">
+        <div class="matrix-quadrant-header">
+          <div class="matrix-quadrant-label"><span class="matrix-dot matrix-dot-q4"></span>ELIMINATE</div>
+          <div class="matrix-quadrant-subtitle">Not Urgent + Not Important</div>
+        </div>
+        <ul class="matrix-list" id="matrixListQ4"></ul>
+        <div class="matrix-add-row">
+          <input class="matrix-add-input" id="matrixInputQ4" placeholder="Add task..." onkeydown="if(event.key==='Enter'){addMatrixTask('q4')}">
+          <button class="btn btn-primary btn-sm" onclick="addMatrixTask('q4')">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== HISTORY VIEW ===== -->
   <div id="historyView" class="history-view">
     <div class="header">
@@ -681,6 +895,16 @@
     </div>
     <div id="historyList"></div>
   </div>
+</div>
+
+<!-- Settings panel -->
+<button class="settings-toggle" onclick="toggleSettings()">&#9881;</button>
+<div class="settings-panel" id="settingsPanel">
+  <h4>Settings</h4>
+  <label>Gemini API Key</label>
+  <input class="settings-input" id="geminiKeyInput" type="password" placeholder="AIza..."
+    onchange="saveGeminiKey(this.value)">
+  <div class="settings-status" id="geminiKeyStatus"></div>
 </div>
 
 <!-- Check-in Modal -->
@@ -758,8 +982,10 @@ function loadState() {
   const d = getTodayState();
   timeLeft = d.timerLeft != null ? d.timerLeft : CHECKIN_INTERVAL;
 
-  // Ensure notes array exists for older data
+  // Ensure arrays exist for older data
   if (!d.notes) d.notes = [];
+  getMatrixState();
+  getSettings();
 
   // Restore UI
   renderTasks();
@@ -980,6 +1206,7 @@ function submitQuickLog() {
   renderCheckinLog();
   updateStats();
   saveState();
+  aiCategorize(text);
 }
 
 // ── Check-in ──
@@ -1048,6 +1275,7 @@ function submitCheckin() {
   playDing();
   renderCheckinLog();
   updateStats();
+  aiCategorize(text);
 
   timeLeft = CHECKIN_INTERVAL;
   startTimer();
@@ -1060,17 +1288,27 @@ function renderCheckinLog() {
     container.innerHTML = '<div class="empty-state">Press Start to begin the 15-minute cycle</div>';
     return;
   }
-  container.innerHTML = [...d.checkins].reverse().map(c => {
+  const reversed = [...d.checkins].reverse();
+  let lastDateKey = null;
+  const html = [];
+  reversed.forEach(c => {
+    const timeStr = c.timestamp ? formatLogTime(c.timestamp) : escapeHtml(c.time);
+    const dateKey = c.timestamp ? getDateKey(c.timestamp) : null;
+    if (dateKey && lastDateKey && dateKey !== lastDateKey) {
+      html.push(`<div class="date-separator">── ${lastDateKey} ──</div>`);
+    }
+    lastDateKey = dateKey;
     const isQuick = c.type === 'quick';
     const tagHtml = isQuick
       ? '<span class="log-tag log-tag-quick">quick</span>'
       : '<span class="log-tag log-tag-checkin">check-in</span>';
-    return `
+    html.push(`
     <div class="checkin-entry">
-      <div class="checkin-time">${escapeHtml(c.time)}${tagHtml}</div>
+      <div class="checkin-time">${escapeHtml(timeStr)}${tagHtml}</div>
       <div class="checkin-text">${escapeHtml(c.text)}</div>
-    </div>`;
-  }).join('');
+    </div>`);
+  });
+  container.innerHTML = html.join('');
 }
 
 // ── Tasks ──
@@ -1211,10 +1449,12 @@ function renderNotes() {
   }
   container.innerHTML = [...notes].reverse().map((n, ri) => {
     const i = notes.length - 1 - ri;
+    const timeStr = n.timestamp ? formatLogTime(n.timestamp) : escapeHtml(n.time);
+    const aiBadge = n.ai ? '<span class="ai-badge">AI</span>' : '';
     return `
     <div class="note-entry">
       <div class="note-header">
-        <span class="note-time">${escapeHtml(n.time)}</span>
+        <span class="note-time">${escapeHtml(timeStr)}${aiBadge}</span>
         <span class="note-tag note-tag-${escapeHtml(n.tag)}">${escapeHtml(n.tag)}</span>
         <span class="note-delete" onclick="deleteNote(${i})">×</span>
       </div>
@@ -1290,13 +1530,16 @@ function updateStats() {
 // ── Tab switching ──
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById('todayView').style.display = 'none';
+  document.getElementById('matrixView').classList.remove('active');
+  document.getElementById('historyView').classList.remove('active');
   if (tab === 'today') {
-    document.querySelector('.tab:first-child').classList.add('active');
     document.getElementById('todayView').style.display = '';
-    document.getElementById('historyView').classList.remove('active');
+  } else if (tab === 'matrix') {
+    document.getElementById('matrixView').classList.add('active');
+    renderMatrix();
   } else {
-    document.querySelector('.tab:last-child').classList.add('active');
-    document.getElementById('todayView').style.display = 'none';
     document.getElementById('historyView').classList.add('active');
     renderHistory();
   }
@@ -1364,6 +1607,206 @@ function updateDate() {
   });
 }
 
+// ── Eisenhower Matrix ──
+function getMatrixState() {
+  if (!state.matrix) state.matrix = { q1: [], q2: [], q3: [], q4: [] };
+  return state.matrix;
+}
+
+function addMatrixTask(q) {
+  const input = document.getElementById('matrixInput' + q.toUpperCase());
+  const text = input.value.trim();
+  if (!text) return;
+  const m = getMatrixState();
+  m[q].push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+    text, done: false,
+    createdAt: new Date().toISOString(),
+    completedAt: null
+  });
+  input.value = '';
+  renderMatrix(); saveState(); playDing();
+}
+
+function toggleMatrixTask(q, id) {
+  const m = getMatrixState();
+  const t = m[q].find(t => t.id === id);
+  if (!t) return;
+  t.done = !t.done;
+  t.completedAt = t.done ? new Date().toISOString() : null;
+  renderMatrix(); saveState(); playDing();
+}
+
+function deleteMatrixTask(q, id) {
+  const m = getMatrixState();
+  m[q] = m[q].filter(t => t.id !== id);
+  renderMatrix(); saveState();
+}
+
+function moveMatrixTask(from, id, to) {
+  const m = getMatrixState();
+  const idx = m[from].findIndex(t => t.id === id);
+  if (idx === -1) return;
+  const task = m[from].splice(idx, 1)[0];
+  m[to].push(task);
+  renderMatrix(); saveState(); playDing();
+  // Close any open menu
+  document.querySelectorAll('.matrix-move-menu').forEach(el => el.remove());
+}
+
+function showMoveMenu(q, id, event) {
+  event.stopPropagation();
+  document.querySelectorAll('.matrix-move-menu').forEach(el => el.remove());
+  const quadrants = {q1:'Do First', q2:'Schedule', q3:'Delegate', q4:'Eliminate'};
+  const dots = {q1:'matrix-dot-q1', q2:'matrix-dot-q2', q3:'matrix-dot-q3', q4:'matrix-dot-q4'};
+  const menu = document.createElement('div');
+  menu.className = 'matrix-move-menu';
+  Object.keys(quadrants).filter(k => k !== q).forEach(k => {
+    const item = document.createElement('div');
+    item.className = 'matrix-move-menu-item';
+    item.innerHTML = `<span class="matrix-dot ${dots[k]}"></span>${quadrants[k]}`;
+    item.onclick = (e) => { e.stopPropagation(); moveMatrixTask(q, id, k); };
+    menu.appendChild(item);
+  });
+  const li = event.target.closest('li');
+  li.style.position = 'relative';
+  li.appendChild(menu);
+}
+
+function clearDoneMatrix(q) {
+  const m = getMatrixState();
+  m[q] = m[q].filter(t => !t.done);
+  renderMatrix(); saveState();
+}
+
+function renderMatrix() {
+  const m = getMatrixState();
+  ['q1','q2','q3','q4'].forEach(q => {
+    const list = document.getElementById('matrixList' + q.toUpperCase());
+    const tasks = m[q] || [];
+    // Sort: undone first, then done
+    const sorted = [...tasks.filter(t => !t.done), ...tasks.filter(t => t.done)];
+    if (sorted.length === 0) {
+      list.innerHTML = '<li style="color:#555;justify-content:center;border:none;cursor:default;font-size:13px">No tasks</li>';
+    } else {
+      const hasDone = sorted.some(t => t.done);
+      list.innerHTML = sorted.map(t => `
+        <li class="${t.done ? 'done' : ''}">
+          <div class="check" onclick="toggleMatrixTask('${q}','${t.id}')">${t.done ? '✓' : ''}</div>
+          <span class="task-text">${escapeHtml(t.text)}</span>
+          <div class="task-actions">
+            <button class="matrix-move-btn" onclick="showMoveMenu('${q}','${t.id}',event)">Move</button>
+            <button class="matrix-delete-btn" onclick="deleteMatrixTask('${q}','${t.id}')">×</button>
+          </div>
+        </li>
+      `).join('') + (hasDone ? `<li style="border:none;padding:4px 0"><span class="matrix-clear-done" onclick="clearDoneMatrix('${q}')">Clear done</span></li>` : '');
+    }
+  });
+  // Stats
+  const total = ['q1','q2','q3','q4'].reduce((s, q) => s + (m[q] || []).filter(t => !t.done).length, 0);
+  const q2 = (m.q2 || []).filter(t => !t.done).length;
+  document.getElementById('matrixTotalTasks').textContent = total;
+  document.getElementById('matrixQ2Count').textContent = q2;
+}
+
+// Dismiss move menu on outside click
+document.addEventListener('click', () => {
+  document.querySelectorAll('.matrix-move-menu').forEach(el => el.remove());
+});
+
+// ── Settings / Gemini API ──
+function getSettings() {
+  if (!state.settings) state.settings = { geminiKey: '' };
+  return state.settings;
+}
+
+function toggleSettings() {
+  const panel = document.getElementById('settingsPanel');
+  panel.classList.toggle('show');
+  if (panel.classList.contains('show')) {
+    const s = getSettings();
+    document.getElementById('geminiKeyInput').value = s.geminiKey || '';
+    updateGeminiStatus();
+  }
+}
+
+function saveGeminiKey(val) {
+  const s = getSettings();
+  s.geminiKey = val.trim();
+  saveState();
+  updateGeminiStatus();
+}
+
+function updateGeminiStatus() {
+  const el = document.getElementById('geminiKeyStatus');
+  const key = getSettings().geminiKey;
+  if (key) {
+    el.textContent = '✓ API Key set';
+    el.className = 'settings-status ok';
+  } else {
+    el.textContent = 'Not configured — AI auto-categorization disabled';
+    el.className = 'settings-status none';
+  }
+}
+
+async function aiCategorize(text) {
+  const key = getSettings().geminiKey;
+  if (!key) return;
+  try {
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(key)}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text:
+            `You are a productivity assistant. Analyze this check-in log entry and categorize it.\n\nEntry: "${text}"\n\nRespond with ONLY a JSON object (no markdown, no code fences):\n{"tag": "workflow|problem|insight|general", "summary": "A brief 1-sentence summary in the same language as the entry"}\n\nRules:\n- "workflow": describes a process step, how something is done, or a sequence of actions\n- "problem": mentions an issue, blocker, failure, or difficulty\n- "insight": contains a realization, idea for improvement, or future optimization\n- "general": anything else (status update, break, etc.)`
+          }] }]
+        })
+      }
+    );
+    if (!resp.ok) return;
+    const data = await resp.json();
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!raw) return;
+    // Parse JSON from response (handle possible markdown fences)
+    const jsonStr = raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim();
+    const result = JSON.parse(jsonStr);
+    if (!result.tag || !result.summary) return;
+    // Add to notes
+    const d = getTodayState();
+    if (!d.notes) d.notes = [];
+    const now = new Date();
+    d.notes.push({
+      time: now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+      timestamp: now.toISOString(),
+      tag: result.tag,
+      text: result.summary,
+      ai: true
+    });
+    renderNotes();
+    saveState();
+  } catch (e) {
+    console.warn('AI categorize failed:', e);
+  }
+}
+
+// ── Date formatting helpers ──
+function formatLogTime(timestamp) {
+  if (!timestamp) return '';
+  const d = new Date(timestamp);
+  const now = new Date();
+  const isToday = d.toDateString() === now.toDateString();
+  if (isToday) {
+    return d.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+  }
+  return `${d.getMonth()+1}/${d.getDate()} ${d.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}`;
+}
+
+function getDateKey(timestamp) {
+  return new Date(timestamp).toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' });
+}
+
 // ── Request notification permission ──
 if ('Notification' in window && Notification.permission === 'default') {
   Notification.requestPermission();
@@ -1380,6 +1823,7 @@ updateDate();
 loadState();
 updateStats();
 updateTimerDisplay();
+updateGeminiStatus();
 
 // Migrate data from old format if exists
 (function migrateOldData() {
