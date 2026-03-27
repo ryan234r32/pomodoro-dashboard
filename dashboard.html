@@ -654,6 +654,146 @@
     letter-spacing: 1px; text-transform: uppercase;
   }
 
+  /* Session Plan */
+  .session-plan {
+    background: #141414;
+    border: 1px solid #222;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .session-plan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .session-plan-header h3 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #888;
+  }
+  .session-plan-header .plan-actions { display: flex; gap: 8px; }
+  .plan-empty {
+    text-align: center;
+    padding: 20px 0;
+  }
+  .plan-empty p { color: #555; font-size: 13px; margin-bottom: 12px; }
+  .plan-editor {
+    display: none;
+  }
+  .plan-editor.show { display: block; }
+  .plan-time-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: #aaa;
+  }
+  .plan-time-input {
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: #fff;
+    font-size: 14px;
+    width: 80px;
+    text-align: center;
+    outline: none;
+  }
+  .plan-time-input:focus { border-color: #818cf8; }
+  .plan-goals-input {
+    width: 100%;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 12px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    resize: vertical;
+    min-height: 60px;
+    margin-bottom: 12px;
+  }
+  .plan-goals-input:focus { border-color: #818cf8; }
+  .plan-goals-input::placeholder { color: #555; }
+  .plan-blocks-editor { margin-bottom: 12px; }
+  .plan-block-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .plan-block-row input[type="time"] {
+    background: #0a0a0a; border: 1px solid #333; border-radius: 4px;
+    padding: 4px 6px; color: #fff; font-size: 13px; outline: none; width: 80px;
+  }
+  .plan-block-row input[type="text"] {
+    flex: 1; background: #0a0a0a; border: 1px solid #333; border-radius: 4px;
+    padding: 4px 8px; color: #fff; font-size: 13px; outline: none;
+  }
+  .plan-block-row .remove-block {
+    color: #f87171; cursor: pointer; font-size: 16px; background: none; border: none; padding: 0 4px;
+  }
+  .plan-editor-actions {
+    display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px;
+  }
+
+  /* Plan timeline (active session) */
+  .plan-timeline { list-style: none; }
+  .plan-block {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-left: 3px solid #333;
+    padding-left: 16px;
+    margin-left: 4px;
+    position: relative;
+  }
+  .plan-block::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 14px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #333;
+  }
+  .plan-block.current {
+    border-left-color: #818cf8;
+    background: rgba(129,140,248,0.05);
+    border-radius: 0 8px 8px 0;
+    margin-right: -20px;
+    padding-right: 20px;
+  }
+  .plan-block.current::before { background: #818cf8; box-shadow: 0 0 8px rgba(129,140,248,0.4); }
+  .plan-block.done { opacity: 0.5; }
+  .plan-block.done::before { background: #4ade80; }
+  .plan-block.done .plan-block-goal { text-decoration: line-through; }
+  .plan-block-time {
+    font-size: 12px;
+    color: #818cf8;
+    font-weight: 600;
+    white-space: nowrap;
+    min-width: 90px;
+  }
+  .plan-block-goal { font-size: 14px; color: #e0e0e0; flex: 1; }
+  .plan-block.current .plan-block-goal { color: #fff; font-weight: 500; }
+  .plan-block-status {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+  .status-now { background: #1a1a2e; color: #818cf8; }
+  .status-done { background: #1a2a1a; color: #4ade80; }
+  .status-pending { color: #555; }
+
   /* Quick Log inline input */
   .quick-log-bar {
     display: none;
@@ -715,10 +855,18 @@
       </div>
     </div>
 
-    <!-- Priority -->
-    <div class="priority-banner">
-      <div class="label">Daily Priority</div>
-      <div class="text editable" id="priorityText" onclick="editField(this, 'priority')">Click to set today's priority</div>
+    <!-- History hint banner (shown when today is empty but recent data exists) -->
+    <div id="historyHint" style="display:none;background:#1a2a1a;border:1px solid #2a4a2a;border-radius:12px;padding:14px 20px;margin-bottom:24px;cursor:pointer;font-size:14px;color:#4ade80" onclick="switchTab('history')">
+      You have data from recent days — click here or go to the <strong>History</strong> tab to view it.
+    </div>
+
+    <!-- Session Plan -->
+    <div class="session-plan" id="sessionPlan">
+      <div class="session-plan-header">
+        <h3>Session Plan</h3>
+        <div class="plan-actions" id="planActions"></div>
+      </div>
+      <div id="planContent"></div>
     </div>
 
     <!-- Stats -->
@@ -968,15 +1116,34 @@ function getTodayState() {
   return state.days[today];
 }
 
-// ── Persistence ──
-function loadState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      state = JSON.parse(raw);
+// ── Persistence (file-based via server API) ──
+let useServerStorage = location.protocol === 'http:' || location.protocol === 'https:';
+
+async function loadState() {
+  // Try server file first
+  if (useServerStorage) {
+    try {
+      const resp = await fetch('/api/data');
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data && data.days && Object.keys(data.days).length > 0) {
+          state = data;
+        }
+      }
+    } catch (e) {
+      console.warn('Server load failed, falling back to localStorage:', e);
     }
-  } catch (e) {
-    console.warn('Failed to load state:', e);
+
+    // Clean up any leftover localStorage (data is now on server)
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  } else {
+    // Fallback: localStorage only (file:// protocol)
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) state = JSON.parse(raw);
+    } catch (e) {
+      console.warn('Failed to load state:', e);
+    }
   }
 
   const d = getTodayState();
@@ -992,7 +1159,7 @@ function loadState() {
   renderKeyNumbers();
   renderCheckinLog();
   renderNotes();
-  document.getElementById('priorityText').textContent = d.priority || 'Click to set today\'s priority';
+  renderPlan();
   document.getElementById('workWindowStart').textContent = d.workStart || '09:00';
   document.getElementById('workWindowEnd').textContent = d.workEnd || '19:00';
 
@@ -1016,15 +1183,23 @@ function loadState() {
   updateStats();
 }
 
+let _saveReady = false; // Prevent saves until fully loaded
 function saveState() {
+  if (!_saveReady) return;
   const d = getTodayState();
   d.timerLeft = timeLeft;
   d.timerRunning = isRunning;
   d.lastSaveTime = new Date().toISOString();
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch (e) {
-    console.warn('Failed to save state:', e);
+  const json = JSON.stringify(state);
+
+  if (useServerStorage) {
+    fetch('/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: json
+    }).catch(e => console.warn('Server save failed:', e));
+  } else {
+    try { localStorage.setItem(STORAGE_KEY, json); } catch (e) {}
   }
 }
 
@@ -1161,7 +1336,7 @@ function updateTimerDisplay() {
   const now = new Date();
   const next = new Date(now.getTime() + timeLeft * 1000);
   document.getElementById('checkinBadge').textContent =
-    `Next check-in: ${next.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}`;
+    `Next check-in: ${next.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false })}`;
 
   const el = document.getElementById('timerDisplay');
   if (timeLeft <= 120 && timeLeft > 0) el.classList.add('warning');
@@ -1195,7 +1370,7 @@ function submitQuickLog() {
   const now = new Date();
   const d = getTodayState();
   d.checkins.push({
-    time: now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+    time: now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false }),
     text,
     timestamp: now.toISOString(),
     type: 'quick'
@@ -1242,11 +1417,21 @@ async function triggerCheckin() {
 function showModal() {
   const overlay = document.getElementById('modalOverlay');
   const input = document.getElementById('modalInput');
+  const subtitle = document.getElementById('modalSubtitle');
   overlay.classList.add('show');
   input.value = '';
+
+  // Show current planned block goal
+  const block = getCurrentBlock();
+  if (block) {
+    subtitle.textContent = `Current plan: ${block.goal} (${block.start}–${block.end})`;
+  } else {
+    subtitle.textContent = '15 minutes passed. What are you working on?';
+  }
+
   setTimeout(() => input.focus(), 100);
   if (Notification.permission === 'granted') {
-    new Notification('Pomodoro Check-in', { body: '15 分鐘到了，現在在做什麼？', silent: true });
+    new Notification('Pomodoro Check-in', { body: block ? `Plan: ${block.goal}` : '15 分鐘到了', silent: true });
   }
 }
 
@@ -1266,7 +1451,7 @@ function submitCheckin() {
   const now = new Date();
   const d = getTodayState();
   d.checkins.push({
-    time: now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+    time: now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false }),
     text,
     timestamp: now.toISOString()
   });
@@ -1419,7 +1604,7 @@ function addNote() {
   if (!d.notes) d.notes = [];
   const now = new Date();
   d.notes.push({
-    time: now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+    time: now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false }),
     timestamp: now.toISOString(),
     tag: selectedNoteTag,
     text
@@ -1557,22 +1742,53 @@ function renderHistory() {
     const date = new Date(dayKey + 'T00:00:00');
     const dateStr = date.toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
 
-    const checkinHtml = (d.checkins || []).map(c =>
-      `<div class="history-checkin"><span class="history-time">${escapeHtml(c.time)}</span> ${escapeHtml(c.text)}</div>`
-    ).join('');
+    const checkinHtml = (d.checkins || []).map(c => {
+      const t = c.timestamp ? formatLogTime(c.timestamp) : c.time;
+      return `<div class="history-checkin"><span class="history-time">${escapeHtml(t)}</span> ${escapeHtml(c.text)}</div>`;
+    }).join('');
 
     const tasksHtml = (d.tasks || []).map(t =>
       t.done ? `<span class="done-task">${escapeHtml(t.text)}</span>` : escapeHtml(t.text)
     ).join(' / ');
 
-    const notesHtml = (d.notes || []).map(n =>
-      `<div class="history-checkin"><span class="history-time">${escapeHtml(n.time)}</span> <span class="note-tag note-tag-${escapeHtml(n.tag)}" style="font-size:10px;padding:1px 6px">${escapeHtml(n.tag)}</span> ${escapeHtml(n.text)}</div>`
-    ).join('');
+    const notesHtml = (d.notes || []).map(n => {
+      const t = n.timestamp ? formatLogTime(n.timestamp) : n.time;
+      const aiBadge = n.ai ? ' <span class="ai-badge">AI</span>' : '';
+      return `<div class="history-checkin"><span class="history-time">${escapeHtml(t)}${aiBadge}</span> <span class="note-tag note-tag-${escapeHtml(n.tag)}" style="font-size:10px;padding:1px 6px">${escapeHtml(n.tag)}</span> ${escapeHtml(n.text)}</div>`;
+    }).join('');
+
+    // Plan vs Actual
+    let planHtml = '';
+    if (d.plan && d.plan.blocks && d.plan.blocks.length > 0) {
+      const planRows = d.plan.blocks.map(b => {
+        // Find check-ins that fall within this block's time range
+        const [bsh, bsm] = b.start.split(':').map(Number);
+        const [beh, bem] = b.end.split(':').map(Number);
+        const bStart = bsh * 60 + bsm;
+        const bEnd = beh * 60 + bem;
+        const actual = (d.checkins || []).filter(c => {
+          if (!c.timestamp) return false;
+          const ct = new Date(c.timestamp);
+          const cMins = ct.getHours() * 60 + ct.getMinutes();
+          return cMins >= bStart && cMins < bEnd;
+        }).map(c => c.text).join('; ');
+        return `<div style="display:flex;gap:12px;padding:6px 0;border-bottom:1px solid #1a1a1a;font-size:13px">
+          <span style="color:#818cf8;min-width:90px;white-space:nowrap">${b.start}—${b.end}</span>
+          <span style="color:#888;min-width:80px">Plan: ${escapeHtml(b.goal)}</span>
+          <span style="color:#ccc;flex:1">${actual ? 'Actual: ' + escapeHtml(actual.slice(0, 100)) : '<span style="color:#555">—</span>'}</span>
+        </div>`;
+      }).join('');
+      planHtml = `<div style="margin-top:12px;padding-top:12px;border-top:1px solid #1a1a1a">
+        <div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Plan vs Actual</div>
+        ${planRows}
+      </div>`;
+    }
 
     return `
       <div class="history-day">
         <h4>${dateStr}${d.priority ? ' — ' + escapeHtml(d.priority) : ''}</h4>
         ${checkinHtml || '<div style="color:#555;font-size:13px">No check-ins</div>'}
+        ${planHtml}
         ${tasksHtml ? `<div class="history-tasks">Tasks: ${tasksHtml}</div>` : ''}
         ${notesHtml ? `<div style="margin-top:12px;padding-top:12px;border-top:1px solid #1a1a1a"><div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Notes</div>${notesHtml}</div>` : ''}
       </div>
@@ -1606,6 +1822,280 @@ function updateDate() {
     year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
   });
 }
+
+// ── Session Plan ──
+function getPlanState() {
+  const d = getTodayState();
+  if (!d.plan) d.plan = { startTime: '', endTime: '', blocks: [], active: false };
+  return d.plan;
+}
+
+function renderPlan() {
+  const plan = getPlanState();
+  const content = document.getElementById('planContent');
+  const actions = document.getElementById('planActions');
+
+  if (plan.active && plan.blocks.length > 0) {
+    // Active session — show timeline
+    const now = new Date();
+    const nowMins = now.getHours() * 60 + now.getMinutes();
+
+    actions.innerHTML = `<button class="btn btn-secondary btn-sm" onclick="editPlan()">Edit</button>`;
+
+    const blocksHtml = plan.blocks.map((b, i) => {
+      const [sh, sm] = b.start.split(':').map(Number);
+      const [eh, em] = b.end.split(':').map(Number);
+      const startMins = sh * 60 + sm;
+      const endMins = eh * 60 + em;
+      let status = 'pending';
+      let statusHtml = '<span class="plan-block-status status-pending">pending</span>';
+      if (nowMins >= endMins) {
+        status = 'done';
+        statusHtml = '<span class="plan-block-status status-done">done</span>';
+      } else if (nowMins >= startMins) {
+        status = 'current';
+        statusHtml = '<span class="plan-block-status status-now">now</span>';
+      }
+      return `<div class="plan-block ${status}">
+        <div class="plan-block-time">${b.start} — ${b.end}</div>
+        <div class="plan-block-goal">${escapeHtml(b.goal)}</div>
+        ${statusHtml}
+      </div>`;
+    }).join('');
+
+    content.innerHTML = `<div class="plan-timeline">${blocksHtml}</div>`;
+  } else if (document.getElementById('planEditor')?.classList.contains('show')) {
+    // Editor is open, don't overwrite
+  } else {
+    // No plan — show setup
+    actions.innerHTML = '';
+    const nowH = String(new Date().getHours()).padStart(2, '0');
+    const nowM = String(Math.ceil(new Date().getMinutes() / 15) * 15 % 60).padStart(2, '0');
+    const defaultStart = `${nowH}:${nowM === '00' && new Date().getMinutes() > 0 ? String(Number(nowH)+1).padStart(2,'0') : nowH}:${nowM}`;
+
+    content.innerHTML = `
+      <div class="plan-empty">
+        <p>Plan your work session to stay focused</p>
+        <button class="btn btn-primary" onclick="openPlanEditor()">Plan Session</button>
+      </div>`;
+  }
+}
+
+function openPlanEditor() {
+  const plan = getPlanState();
+  const now = new Date();
+  const startH = String(now.getHours()).padStart(2, '0');
+  const startM = String(Math.ceil(now.getMinutes() / 5) * 5 % 60).padStart(2, '0');
+  const d = getTodayState();
+  const defaultStart = plan.startTime || `${startH}:${startM}`;
+  const defaultEnd = plan.endTime || d.workEnd || '19:00';
+
+  const content = document.getElementById('planContent');
+  const actions = document.getElementById('planActions');
+  actions.innerHTML = '';
+
+  const existingBlocks = plan.blocks.length > 0
+    ? plan.blocks.map((b, i) => `
+        <div class="plan-block-row" data-index="${i}">
+          <input type="time" value="${b.start}" onchange="updateBlockTime(${i},'start',this.value)">
+          <span style="color:#555">—</span>
+          <input type="time" value="${b.end}" onchange="updateBlockTime(${i},'end',this.value)">
+          <input type="text" value="${escapeHtml(b.goal)}" onchange="updateBlockGoal(${i},this.value)" placeholder="Goal">
+          <button class="remove-block" onclick="removePlanBlock(${i})">×</button>
+        </div>`).join('')
+    : '';
+
+  content.innerHTML = `
+    <div class="plan-editor show" id="planEditor">
+      <div class="plan-time-row">
+        <span>From</span>
+        <input type="time" class="plan-time-input" id="planStartTime" value="${defaultStart}">
+        <span>to</span>
+        <input type="time" class="plan-time-input" id="planEndTime" value="${defaultEnd}">
+      </div>
+      <textarea class="plan-goals-input" id="planGoalsInput"
+        placeholder="What do you want to accomplish? (one goal per line)"
+        onkeydown="if(event.key==='Enter' && event.metaKey){generateBlocks()}">${plan.blocks.map(b => b.goal).join('\n')}</textarea>
+      <div class="plan-blocks-editor" id="planBlocksEditor">${existingBlocks}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-secondary btn-sm" onclick="generateBlocks()">Generate Blocks</button>
+        <button class="btn btn-secondary btn-sm" onclick="addEmptyBlock()">+ Add Block</button>
+        ${getSettings().geminiKey ? '<button class="btn btn-secondary btn-sm" onclick="aiSuggestPlan()" id="aiPlanBtn">Ask AI</button>' : ''}
+      </div>
+      <div class="plan-editor-actions">
+        <button class="btn btn-secondary" onclick="cancelPlanEditor()">Cancel</button>
+        <button class="btn btn-primary" onclick="startSession()">Start Session</button>
+      </div>
+    </div>`;
+}
+
+function generateBlocks() {
+  const goals = document.getElementById('planGoalsInput').value.trim().split('\n').filter(g => g.trim());
+  const startTime = document.getElementById('planStartTime').value;
+  const endTime = document.getElementById('planEndTime').value;
+  if (!goals.length || !startTime || !endTime) return;
+
+  const [sh, sm] = startTime.split(':').map(Number);
+  const [eh, em] = endTime.split(':').map(Number);
+  const totalMins = (eh * 60 + em) - (sh * 60 + sm);
+  if (totalMins <= 0) return;
+
+  const blockMins = Math.floor(totalMins / goals.length);
+  const plan = getPlanState();
+  plan.blocks = [];
+
+  let currentMins = sh * 60 + sm;
+  goals.forEach((goal, i) => {
+    const endMins = i === goals.length - 1 ? eh * 60 + em : currentMins + blockMins;
+    plan.blocks.push({
+      start: `${String(Math.floor(currentMins / 60)).padStart(2, '0')}:${String(currentMins % 60).padStart(2, '0')}`,
+      end: `${String(Math.floor(endMins / 60)).padStart(2, '0')}:${String(endMins % 60).padStart(2, '0')}`,
+      goal: goal.trim()
+    });
+    currentMins = endMins;
+  });
+
+  plan.startTime = startTime;
+  plan.endTime = endTime;
+  openPlanEditor(); // re-render with blocks
+}
+
+function addEmptyBlock() {
+  const plan = getPlanState();
+  const last = plan.blocks[plan.blocks.length - 1];
+  const startTime = last ? last.end : (document.getElementById('planStartTime')?.value || '14:00');
+  const [h, m] = startTime.split(':').map(Number);
+  const endMins = h * 60 + m + 30;
+  plan.blocks.push({
+    start: startTime,
+    end: `${String(Math.floor(endMins / 60)).padStart(2, '0')}:${String(endMins % 60).padStart(2, '0')}`,
+    goal: ''
+  });
+  openPlanEditor();
+}
+
+function removePlanBlock(index) {
+  const plan = getPlanState();
+  plan.blocks.splice(index, 1);
+  openPlanEditor();
+}
+
+function updateBlockTime(index, field, value) {
+  const plan = getPlanState();
+  if (plan.blocks[index]) plan.blocks[index][field] = value;
+}
+
+function updateBlockGoal(index, value) {
+  const plan = getPlanState();
+  if (plan.blocks[index]) plan.blocks[index].goal = value;
+}
+
+function startSession() {
+  const plan = getPlanState();
+  plan.startTime = document.getElementById('planStartTime')?.value || plan.startTime;
+  plan.endTime = document.getElementById('planEndTime')?.value || plan.endTime;
+
+  // Update block goals from editor inputs
+  document.querySelectorAll('.plan-block-row').forEach((row, i) => {
+    const goalInput = row.querySelector('input[type="text"]');
+    const startInput = row.querySelectorAll('input[type="time"]')[0];
+    const endInput = row.querySelectorAll('input[type="time"]')[1];
+    if (plan.blocks[i]) {
+      if (goalInput) plan.blocks[i].goal = goalInput.value;
+      if (startInput) plan.blocks[i].start = startInput.value;
+      if (endInput) plan.blocks[i].end = endInput.value;
+    }
+  });
+
+  if (plan.blocks.length === 0) {
+    generateBlocks();
+    if (plan.blocks.length === 0) return;
+  }
+
+  plan.active = true;
+  renderPlan();
+  saveState();
+  playDing();
+
+  // Also start the timer if not running
+  if (!isRunning) toggleTimer();
+}
+
+function editPlan() {
+  openPlanEditor();
+}
+
+function cancelPlanEditor() {
+  renderPlan();
+}
+
+function getCurrentBlock() {
+  const plan = getPlanState();
+  if (!plan.active || !plan.blocks.length) return null;
+  const now = new Date();
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  for (const b of plan.blocks) {
+    const [sh, sm] = b.start.split(':').map(Number);
+    const [eh, em] = b.end.split(':').map(Number);
+    if (nowMins >= sh * 60 + sm && nowMins < eh * 60 + em) return b;
+  }
+  return null;
+}
+
+async function aiSuggestPlan() {
+  const key = getSettings().geminiKey;
+  if (!key) return;
+  const btn = document.getElementById('aiPlanBtn');
+  if (btn) btn.textContent = 'Thinking...';
+
+  const goals = document.getElementById('planGoalsInput').value.trim();
+  const startTime = document.getElementById('planStartTime').value;
+  const endTime = document.getElementById('planEndTime').value;
+
+  // Get recent history for context
+  const recentDays = Object.keys(state.days).sort().reverse().slice(0, 3);
+  const recentContext = recentDays.map(dk => {
+    const d = state.days[dk];
+    const checkins = (d.checkins || []).slice(0, 5).map(c => `${c.time}: ${c.text}`).join('\n');
+    return `${dk}:\n${checkins}`;
+  }).join('\n\n');
+
+  try {
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(key)}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text:
+            `You are a productivity coach. Help plan a work session.\n\nTime: ${startTime} to ${endTime}\nGoals:\n${goals}\n\nRecent work context:\n${recentContext}\n\nCreate a time-blocked plan. Respond with ONLY a JSON array (no markdown):\n[{"start":"HH:MM","end":"HH:MM","goal":"description"},...]\n\nRules:\n- Blocks should be 15-45 minutes each\n- Put harder/creative tasks when energy is likely higher\n- Include short breaks if session > 2 hours\n- Keep goal descriptions concise (under 20 chars if possible)\n- Use the same language as the user's goals`
+          }] }]
+        })
+      }
+    );
+    if (!resp.ok) throw new Error('API error');
+    const data = await resp.json();
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const jsonStr = raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim();
+    const blocks = JSON.parse(jsonStr);
+    if (Array.isArray(blocks)) {
+      const plan = getPlanState();
+      plan.blocks = blocks;
+      plan.startTime = startTime;
+      plan.endTime = endTime;
+      openPlanEditor();
+    }
+  } catch (e) {
+    console.warn('AI plan suggestion failed:', e);
+  }
+  if (btn) btn.textContent = 'Ask AI';
+}
+
+// Update plan display every 30 seconds
+setInterval(() => {
+  const plan = getPlanState();
+  if (plan.active) renderPlan();
+}, 30000);
 
 // ── Eisenhower Matrix ──
 function getMatrixState() {
@@ -1778,7 +2268,7 @@ async function aiCategorize(text) {
     if (!d.notes) d.notes = [];
     const now = new Date();
     d.notes.push({
-      time: now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+      time: now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false }),
       timestamp: now.toISOString(),
       tag: result.tag,
       text: result.summary,
@@ -1795,12 +2285,7 @@ async function aiCategorize(text) {
 function formatLogTime(timestamp) {
   if (!timestamp) return '';
   const d = new Date(timestamp);
-  const now = new Date();
-  const isToday = d.toDateString() === now.toDateString();
-  if (isToday) {
-    return d.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
-  }
-  return `${d.getMonth()+1}/${d.getDate()} ${d.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}`;
+  return `${d.getMonth()+1}/${d.getDate()} ${d.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false })}`;
 }
 
 function getDateKey(timestamp) {
@@ -1818,59 +2303,108 @@ window.addEventListener('beforeunload', () => saveState());
 // ── Periodic stats update ──
 setInterval(updateStats, 30000);
 
+// ── Cross-midnight detection ──
+// If the page stays open past midnight, detect the date change and handle it
+setInterval(() => {
+  const newToday = getTodayKey();
+  if (newToday !== today) {
+    // Save current day's data
+    saveState();
+    // Switch to new day
+    today = newToday;
+    const d = getTodayState();
+    // Refresh UI for new day
+    updateDate();
+    renderTasks();
+    renderKeyNumbers();
+    renderCheckinLog();
+    renderNotes();
+    updateStats();
+    updateTimerDisplay();
+    showNotification('New day started — yesterday\'s data is in History tab');
+  }
+}, 30000); // check every 30s
+
+// ── Auto-migrate from file:// to localhost server ──
+if (location.protocol === 'file:') {
+  (async () => {
+    // Try all possible localStorage keys
+    const keysToTry = [STORAGE_KEY];
+    // Also check old per-day keys
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('pomodoro')) keysToTry.push(k);
+    }
+
+    let merged = { days: {}, matrix: {}, settings: {} };
+    let hasData = false;
+
+    for (const key of [...new Set(keysToTry)]) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) continue;
+        const data = JSON.parse(raw);
+        // Main format: { days: {...} }
+        if (data.days) {
+          for (const [dk, dv] of Object.entries(data.days)) {
+            if (!merged.days[dk] || (dv.checkins && dv.checkins.length > (merged.days[dk].checkins?.length || 0))) {
+              merged.days[dk] = dv;
+              hasData = true;
+            }
+          }
+          if (data.matrix) merged.matrix = data.matrix;
+          if (data.settings?.geminiKey) merged.settings = data.settings;
+        }
+        // Old format: { checkins: [...], checkedTasks: [...] } with key like pomodoro-2026-03-25
+        if (data.checkins && key.match(/pomodoro-\d{4}-\d{2}-\d{2}/)) {
+          const dateKey = key.replace('pomodoro-', '');
+          merged.days[dateKey] = merged.days[dateKey] || {};
+          merged.days[dateKey].checkins = data.checkins;
+          hasData = true;
+        }
+      } catch (e) { /* skip invalid */ }
+    }
+
+    if (!hasData) return;
+
+    try {
+      const resp = await fetch('http://localhost:8787/api/migrate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(merged)
+      });
+      if (resp.ok) {
+        const result = await resp.json();
+        const dayCount = Object.keys(result.data?.days || {}).length;
+        document.title = '✓ Data migrated!';
+        alert(`Migrated ${dayCount} days of data to server!\n\nPlease open http://localhost:8787`);
+      }
+    } catch (e) {
+      console.warn('Migration failed - server may not be running:', e);
+    }
+  })();
+}
+
 // ── Init ──
 updateDate();
-loadState();
-updateStats();
-updateTimerDisplay();
-updateGeminiStatus();
+(async () => {
+  await loadState();
+  // Enable saves now that data is fully loaded
+  setTimeout(() => { _saveReady = true; }, 2000);
+  updateStats();
+  updateTimerDisplay();
+  updateGeminiStatus();
 
-// Migrate data from old format if exists
-(function migrateOldData() {
-  const oldKey = 'pomodoro-' + today;
-  const old = localStorage.getItem(oldKey);
-  if (old && getTodayState().checkins.length === 0) {
-    try {
-      const oldData = JSON.parse(old);
-      const d = getTodayState();
-      if (oldData.checkins && oldData.checkins.length > 0) d.checkins = oldData.checkins;
-      if (oldData.startedAt) d.startedAt = oldData.startedAt;
-      if (oldData.checkedTasks) {
-        // Map old checked tasks to new format if tasks exist
-        const oldTasks = ['descript-export','import-fcp','split','export-fcp','subtitle','yt-prep','upload'];
-        const oldLabels = ['Descript 匯出完成','匯入主影片到 FCP，接上開頭','在 39:53 切點分成上下集','FCP 匯出上下集','字幕對齊驗證','YouTube 封面/標題/資訊欄','上傳 YouTube'];
-        if (d.tasks.length === 0) {
-          oldTasks.forEach((id, i) => {
-            d.tasks.push({ text: oldLabels[i], done: oldData.checkedTasks.includes(id) });
-          });
-        }
-      }
-      // Migrate key numbers
-      if (d.keyNumbers.length === 0) {
-        d.keyNumbers = [
-          { label: '上集開頭', value: '1:33.27' },
-          { label: '下集開頭', value: '1:15.28' },
-          { label: '切點', value: '39:53' },
-          { label: '上集字幕', value: '1374' },
-          { label: '下集字幕', value: '1528' },
-        ];
-      }
-      // Migrate priority & work window
-      if (!d.priority) d.priority = 'Podcast 葉維達訪談 — 剪輯完成上架到 YT';
-      d.workStart = '14:04';
-      d.workEnd = '19:00';
-
-      saveState();
-      renderTasks();
-      renderKeyNumbers();
-      renderCheckinLog();
-      updateStats();
-      document.getElementById('priorityText').textContent = d.priority;
-      document.getElementById('workWindowStart').textContent = d.workStart;
-      document.getElementById('workWindowEnd').textContent = d.workEnd;
-      // Clean up old key
-      localStorage.removeItem(oldKey);
-    } catch(e) { console.warn('Migration failed:', e); }
+  // Show history hint if today is empty but other days have data
+  const todayData = getTodayState();
+  const todayEmpty = todayData.checkins.length === 0 && todayData.tasks.length === 0;
+  const otherDays = Object.keys(state.days).filter(k => k !== today);
+  const hasRecentData = otherDays.some(k => {
+    const day = state.days[k];
+    return (day.checkins && day.checkins.length > 0) || (day.notes && day.notes.length > 0);
+  });
+  if (todayEmpty && hasRecentData) {
+    document.getElementById('historyHint').style.display = '';
   }
 })();
 </script>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Migrate Data</title>
+<style>
+  body { font-family: system-ui; background: #111; color: #eee; padding: 40px; max-width: 800px; margin: 0 auto; }
+  pre { background: #1a1a1a; padding: 16px; border-radius: 8px; overflow: auto; max-height: 400px; font-size: 12px; }
+  button { background: #818cf8; color: #fff; border: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; cursor: pointer; margin: 20px 0; }
+  button:hover { background: #6366f1; }
+  .ok { color: #4ade80; }
+  .err { color: #f87171; }
+  h1 { margin-bottom: 8px; }
+  p { color: #888; }
+</style>
+</head><body>
+<h1>Data Migration Tool</h1>
+<p>This page reads your localStorage data and sends it to the server.</p>
+<div id="status"></div>
+<pre id="preview">Scanning localStorage...</pre>
+<button onclick="doMigrate()">Migrate to Server</button>
+<div id="result"></div>
+
+<script>
+const STORAGE_KEY = 'pomodoro-data';
+const status = document.getElementById('status');
+const preview = document.getElementById('preview');
+const result = document.getElementById('result');
+
+// Collect all pomodoro data from localStorage
+let allData = { days: {}, matrix: {}, settings: {} };
+let foundKeys = [];
+
+for (let i = 0; i < localStorage.length; i++) {
+  const key = localStorage.key(i);
+  if (!key || !key.startsWith('pomodoro')) continue;
+  foundKeys.push(key);
+  try {
+    const raw = localStorage.getItem(key);
+    const data = JSON.parse(raw);
+
+    // Main format
+    if (data.days) {
+      for (const [dk, dv] of Object.entries(data.days)) {
+        allData.days[dk] = dv;
+      }
+      if (data.matrix) allData.matrix = data.matrix;
+      if (data.settings) allData.settings = data.settings;
+    }
+
+    // Old per-day format
+    if (data.checkins && key.match(/pomodoro-\d{4}-\d{2}-\d{2}/)) {
+      const dateKey = key.replace('pomodoro-', '');
+      allData.days[dateKey] = { checkins: data.checkins, tasks: [], notes: [], keyNumbers: [] };
+    }
+  } catch(e) {}
+}
+
+const dayKeys = Object.keys(allData.days).sort();
+const totalCheckins = dayKeys.reduce((s, k) => s + (allData.days[k].checkins?.length || 0), 0);
+const totalNotes = dayKeys.reduce((s, k) => s + (allData.days[k].notes?.length || 0), 0);
+
+status.innerHTML = `
+  <p>Found <strong>${foundKeys.length}</strong> localStorage keys</p>
+  <p>Days: <strong>${dayKeys.join(', ') || 'none'}</strong></p>
+  <p>Total: <strong>${totalCheckins}</strong> check-ins, <strong>${totalNotes}</strong> notes</p>
+`;
+
+preview.textContent = JSON.stringify(allData, null, 2).slice(0, 5000) + (JSON.stringify(allData).length > 5000 ? '\n... (truncated)' : '');
+
+async function doMigrate() {
+  result.innerHTML = 'Sending to server...';
+  try {
+    const resp = await fetch('http://localhost:8787/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(allData)
+    });
+    if (resp.ok) {
+      result.innerHTML = '<p class="ok">✓ Migration complete! Open <a href="http://localhost:8787" style="color:#818cf8">http://localhost:8787</a> and check History tab.</p>';
+    } else {
+      result.innerHTML = '<p class="err">Server returned error: ' + resp.status + '</p>';
+    }
+  } catch(e) {
+    result.innerHTML = '<p class="err">Failed to reach server. Make sure localhost:8787 is running.</p>';
+  }
+}
+</script>
+</body></html>
